@@ -9,28 +9,28 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 function handleValidationError(error) {
-    const errors = {};
+    var message = '';
 
     // Loop through each error in the Mongoose ValidationError object
     for (let field in error.errors) {
         if (error.errors[field].path === 'name') {
-            errors.name = 'Name is required';
-        }
+            message = 'Name is required';
+        } else
         if (error.errors[field].path === 'isInfluencer') {
-            errors.isInfluencer = 'User type (influencer or normal) is required';
-        }
+            message = 'User type (influencer or normal) is required';
+        } else
         if (error.errors[field].path === 'email') {
-            errors.email = 'Valid email is required';
-        }
+            message = 'Valid email is required';
+        } else
         if (error.errors[field].path === 'phone') {
-            errors.phone = 'Phone number is required';
-        }
+            message = 'Phone number is required';
+        } else
         if (error.errors[field].path === 'password') {
-            errors.password = 'Password is required';
+            message = 'Password is required';
         }
     }
 
-    return errors;
+    return message;
 }
 
 // Signup route
@@ -60,10 +60,19 @@ router.post('/signup', async (req, res) => {
         // Create a JWT token
         const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-        res.status(201).json({ token, user: newUser });
+        var json = {
+            status :1,
+            token:token,
+            user: newUser
+        }
+        res.status(200).json(json);
     } catch (error) {
         const errors = handleValidationError(error);
-        return res.status(400).json({ status: 0, message: 'Validation error', errors });
+        var json = {
+            status :0,
+            message :''
+        }
+        return res.status(400).json(json);
     }
 });
 
@@ -86,9 +95,14 @@ router.post('/login', async (req, res) => {
 
         // Create a JWT token
         const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-
-        res.status(200).json({ token, user });
+        var json = {
+            status :1,
+            token:token,
+            user: newUser
+        }
+        res.status(200).json(json);
     } catch (error) {
+        
         res.status(500).json({ message: 'Server error', error });
     }
 });
